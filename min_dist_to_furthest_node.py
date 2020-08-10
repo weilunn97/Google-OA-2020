@@ -7,43 +7,45 @@ def min_dist_to_furthest_node(n: int, edges: List[List[int]]) -> int:
     Time  : O(N)
     Space : O(N),
     """
+    # CREATE THE GRAPH
+    g = create(edges)
 
-    # SETUP THE GRAPH
+    # GET IN-DEG AND THOSE WITH IN-DEG = 1
+    idg, idg1 = get_deg(n, edges)
+
+    # COUNT THE DISTANCE
+    d = 0
+
+    # KEEP PLUCKING THE LEAVES
+    while len(idg1) > 1:
+        num_leaves = len(idg1)
+        idg1_new = set()
+        for _ in range(num_leaves):
+            removed = idg1.pop()
+            for nb in g.get(removed, []):
+                idg[nb] -= 1
+                if idg[nb] == 1: idg1_new.add(nb)
+        d += 1
+        idg1 = idg1_new
+
+    return d
+
+
+def create(edges):
     g = defaultdict(list)
+    for s, e in edges:
+        g[s].append(e)
+        g[e].append(s)
+    return g
 
-    # SETUP A SET OF NODES WITH IN-DEGREE = 0
-    id0 = set([i for i in range(1, n + 1)])
 
-    # COUNT THE IN-DEGREE OF EACH NODE
-    id = [0] * (n + 1)
-
-    # TRACK THE DIST
-    dist = 0
-
-    for e in edges:
-        g[e[0]].append(e[1])
-        g[e[1]].append(e[0])
-        id[e[0]] += 1
-        id[e[1]] += 1
-        if id[e[0]] > 1 and e[0] in id0: id0.remove(e[0])
-        if id[e[1]] > 1 and e[1] in id0: id0.remove(e[1])
-
-    # LOOP TILL WE ONLY HAVE 0 - 1 NODE WITH ID = 0
-    while len(id0) > 1:
-
-        # TRACK THE NEW ID0
-        new_id0 = set()
-
-        # REMOVE ALL LEAVES AND THEIR EDGES
-        for leaf in id0:
-            for nb in g.get(leaf):
-                id[nb] -= 1
-                if id[nb] == 1: new_id0.add(nb)
-
-        id0 = new_id0
-        dist += 1
-
-    return dist
+def get_deg(n, edges):
+    idg = [0] * (n + 1)
+    for s, e in edges:
+        idg[s] += 1
+        idg[e] += 1
+    idg1 = set([i for i in range(1, n + 1) if idg[i] == 1])
+    return idg, idg1
 
 
 if __name__ == "__main__":

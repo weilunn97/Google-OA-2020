@@ -4,26 +4,17 @@ from typing import List
 
 def decreasing_subsequences(arr: List[int]) -> int:
     """
-    Time  : O(N log N)
+    Time : O(N log N)
     Space : O(N)
     """
-
-    # EDGE CASE
-    if len(arr) < 2:
-        return len(arr)
-
-    # SETUP A LIST OF THE TAILS OF EACH SUBSEQUENCE
-    tails = []
-
-    for num in arr:
-        pos = bisect_right(tails, num)
-
-        if pos == len(tails):
-            tails.append(num)
+    buckets = []
+    for a in arr:
+        pos = bisect_right(buckets, a)
+        if pos == len(buckets):
+            buckets.append(a)
         else:
-            tails[pos] = num
-
-    return len(tails)
+            buckets[pos] = a
+    return len(buckets)
 
 
 if __name__ == "__main__":
